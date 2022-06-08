@@ -1096,15 +1096,28 @@ max_bill_rearrange <- function(k = NULL) {
     geom_regon(aes(x0 = hex$x0, y0 = hex$y0, sides = 6, r = rn[6], angle = hex$angle), colour = cols[6], fill = cols[6]) +
     geom_regon(aes(x0 = pent$x0, y0 = pent$y0, sides = 5, r = rn[5], angle = pent$angle), colour = cols[5], fill = cols[5]) +
     geom_regon(aes(x0 = sq$x0, y0 = sq$y0, sides = 4, r = rn[4], angle = sq$angle), colour = cols[4], fill = cols[4]) +  
-    geom_regon(aes(x0 = tri$x0, y0 = tri$y0, sides = 3, r = rn[3], angle = tri$angle), colour = cols[3], fill = cols[3]) + 
-    coord_fixed() 
+    geom_regon(aes(x0 = tri$x0, y0 = tri$y0, sides = 3, r = rn[3], angle = tri$angle), colour = cols[3], fill = cols[3]) #+ 
+    #coord_fixed()
 
 }
 
 ```
 
 ```{r}
-max_bill_rearrange() # random max bill generator
+# library(ragg)
+#library(ggtext)
+
+max_bill_rearrange() + # random max bill generator
+  coord_fixed(xlim = c(-3,3), ylim = c(-3,3)) +
+  #theme_void() +
+  theme(panel.background = element_rect(fill = '#F4F2E9', colour = '#F4F2E9'),
+        ) +
+  annotate("text", label = "max bill", x = -a8, y = 3, hjust = 0, family = "Times") +
+  annotate("text", label = "ella kaye", x = -a8, y = 2.75, hjust = 0, family = "Times", size = 3) +
+  annotate("text", label = "die grafischen reihen", x = a8, y = 3, hjust = 1, family = "Times") +
+  annotate("text", label = "rearranged", x = a8, y = 2.75, hjust = 1, family = "Times", size = 3) +
+  annotate("text", label = "verlag gerd hatje", x = 0, y = -3, family = "Times", size = 3) 
+
 ```
 
 ```{r}
