@@ -1,0 +1,1082 @@
+---
+title: "Max Bill's die grafischen Reihen (1995)"
+author: "Ella Kaye"
+format: html
+editor: visual
+---
+
+Trying `ggforce` for the first time
+
+```{r}
+#| label: load-packages
+#| message: false
+
+library(ggplot2)
+library(ggforce)
+library(dplyr)
+```
+
+First attempt at drawing a polygon with `ggforce`
+
+```{r}
+#| label: draw-polygon
+
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1, angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 7, r = 1, angle = 0), fill = "#F3531F", colour = "#F3531F") +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 6, r = 1, angle = 0), fill = "#3945AA", colour = "#3945AA") +
+  coord_fixed()
+```
+
+Will take a lot of thinking/maths to get everything lined up
+
+Try with `geom_polygon`
+
+See example at <http://sape.inf.usi.ch/quick-reference/ggplot2/geom_polygon>
+
+```{r}
+#| label: geom-polygon-example
+
+d <- data.frame(x=c(1,2,2, 3,4,4), 
+                y=c(1,1,2, 2,2,3), 
+                t=c('a', 'a', 'a',  'b', 'b', 'b'), 
+                r=c(1,2,3, 4,5,6))
+d
+
+ggplot() +
+  geom_polygon(data=d, mapping=aes(x=x, y=y, group=t)) + # draws the two trianges
+  geom_point(data=d, aes(x=x, y=y, color=t)) + # adds coloured dots on vertices
+  geom_text(data=d, aes(x=x, y=y, label=r), hjust=0, vjust=1, size=4) # numbers the corners
+ 
+```
+
+OK, let's calculate the vertices of an octagon with side length 1:
+
+```{r}
+#| label: octogon-df
+
+# square root of 0.5
+srp5 <- sqrt(0.5)
+
+octogon <- tribble(
+  ~x, ~y,
+  0, 0,
+  -srp5, srp5,
+  -srp5, 1 + srp5,
+  0, 1 + 2*srp5,
+  1, 1 + 2*srp5,
+  1 + srp5, 1 + srp5,
+  1 + srp5, srp5,
+  1, 0
+)
+
+octogon <-
+  octogon %>%
+  mutate(shape = "octogon")
+
+```
+
+```{r}
+#| label: plot-octogon
+
+ggplot() +
+  geom_polygon(data = octogon,
+               aes(x, y, group = shape),
+               #aes(x,y),
+               fill = "#803971", colour = "#803971") +
+  coord_fixed()
+```
+
+So far, so good!
+
+Now, calculate coordinates for heptagon
+
+Just three for now!
+
+```{r}
+
+#| label: heptagon-df
+heptagon <- tribble(
+  ~x, ~y,
+  0, 0,
+  -srp5, srp5,
+  cos(pi/28), sin(pi/28)
+)
+
+heptagon <-
+  heptagon %>%
+  mutate(shape = "heptagon")
+```
+
+```{r}
+#| label: plot-heptagon
+
+ggplot() +
+  geom_polygon(data = heptagon,
+               aes(x, y, group = shape),
+               fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+Try octagon and heptagon together:
+
+```{r}
+#| label: plot-8-7
+
+polygons <-
+  bind_rows(octogon, heptagon)
+
+```
+
+```{r}
+ggplot() +
+  geom_polygon(data = polygons,
+               aes(x, y, group = shape, colour = shape, fill = shape)) +
+  coord_fixed()
+```
+
+Over-plotting in wrong direction, and need to figure out how to get correct colours for each shape (presumably via another column in the data frame)
+
+Alternatively, try with different data frames for each shape:
+
+```{r}
+ggplot() +
+  geom_polygon(data = octogon,
+               aes(x, y, group = shape),
+               fill = "#803971", colour = "#803971") +
+  geom_polygon(data = heptagon,
+               aes(x, y, group = shape),
+               fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+In this case, don't need `shape` column in each data frame:
+
+```{r}
+#| label: octogon-df-2
+
+# square root of 0.5
+srp5 <- sqrt(0.5)
+
+octogon <- tribble(
+  ~x, ~y,
+  0, 0,
+  -srp5, srp5,
+  -srp5, 1 + srp5,
+  0, 1 + 2*srp5,
+  1, 1 + 2*srp5,
+  1 + srp5, 1 + srp5,
+  1 + srp5, srp5,
+  1, 0
+)
+
+```
+
+```{r}
+
+#| label: heptagon-df-2
+heptagon <- tribble(
+  ~x, ~y,
+  0, 0,
+  -srp5, srp5,
+  -srp5+sin(pi/28), srp5+cos(pi/28), #shared with hexagon
+  -srp5+sin(pi/28)+cospi(5/28), srp5+cos(pi/28) + sinpi(5/28), #shared with hexagon
+  -srp5+sin(pi/28)+cospi(5/28)+sinpi(11/28), srp5+cos(pi/28) + sinpi(5/28) - cospi(11/28),
+  cos(pi/28) + sinpi(5/28), sin(pi/28) + cospi(5/28),
+  cos(pi/28), sin(pi/28)
+)
+```
+
+OK, getting the co-oridnates for the hexagon took some thinking about! See diagram in GoodNotes (need to import into here).
+
+```{r}
+a <- acos(sinpi(5/28))
+b <- 2*pi/3 - a
+g <- pi/2 - b
+d <- pi/2 - a
+h <- pi/6 - g
+j <- pi/2 - h
+k <- 2*pi/3 - j
+e <- 2*pi/3 - d
+
+x0 <- -srp5+sin(pi/28)
+y0 <- srp5+cos(pi/28)
+x1 <- -srp5+sin(pi/28)+cospi(5/28)
+y1 <- srp5+cos(pi/28) + sinpi(5/28)
+```
+
+```{r}
+#| label: hexagon
+# hexagon <- tribble(
+#   ~x, ~y,
+#   -srp5+sin(pi/28), srp5+cos(pi/28), #shared with hexagon
+#   -srp5+sin(pi/28)+cospi(5/28), srp5+cos(pi/28) + sinpi(5/28), #shared with hexagon
+#   -srp5+sin(pi/28)+cospi(5/28) + sin(b), srp5+cos(pi/28) + sinpi(5/28) - cos(b)
+# )
+
+hexagon <- tribble(
+  ~x, ~y,
+  x0, y0, #shared with hexagon
+  x1, y1, #shared with hexagon
+  x1 + sin(b), y1 - cos(b),
+  x1 + sin(b) + sin(h), y1 - cos(b) - cos(h),
+  x1 + sin(b) + sin(h) - cos(k), y1 - cos(b) - cos(h) -sin(k),
+  x0 + cos(e), y0 - sin(e)
+)
+```
+
+```{r}
+#| label: pentagon
+
+a2 <- 2*pi/5 - h
+b2 <- pi/2 - a2
+d2 <- 2*pi/5 - b2
+e2 <- pi/2 - d2
+f2 <- 2*pi/5 - e2
+
+pentagon <- tribble(
+  ~x, ~y,
+  x1 + sin(b), y1 - cos(b),
+  x1 + sin(b) + sin(h), y1 - cos(b) - cos(h),
+  x1 + sin(b) + sin(h) - sin(a2), y1 - cos(b) - cos(h) - cos(a2),
+  x1 + sin(b) + sin(h) - sin(a2) - cos(d2), y1 - cos(b) - cos(h) - cos(a2) + sin(d2),
+  x1 + sin(b) + sin(h) - sin(a2) - cos(d2) + sin(f2), y1 - cos(b) - cos(h) - cos(a2) + sin(d2) + cos(f2)
+)
+
+```
+
+```{r}
+#| label: square
+
+x2 <- x1 + sin(b) + sin(h) - sin(a2)
+y2 <- y1 - cos(b) - cos(h) - cos(a2)
+
+square <- tribble(
+  ~x, ~y,
+  x2, y2,
+  x2 - cos(d2), y2 + sin(d2),
+)
+
+```
+
+```{r}
+
+#| plot
+
+ggplot() +
+  geom_polygon(data = octogon,
+               aes(x, y),
+               fill = "#803971", colour = "#803971") +
+  geom_polygon(data = heptagon,
+               aes(x, y),
+               fill = "#F3531F", colour = "#F3531F") +
+  geom_polygon(data = hexagon,
+               aes(x,y),
+               fill = "#3945AA", colour = "#3945AA") +
+  geom_polygon(data = pentagon,
+               aes(x, y),
+               fill = "#3AA542", colour = "#3AA542") +
+  geom_point(data = square,
+               aes(x, y)
+               #fill = "#3AA542", colour = "#3AA542") +
+  ) +
+  coord_fixed() 
+```
+
+## Back to `geom_regon`
+
+```{r}
+r8 <- 1/sin(pi/8)
+r7 <- 1/sin(pi/7)
+a8 <- 1/tan(pi/8)
+a7 <- 1/tan(pi/7)
+
+r87 <- r8-r7
+a87 <- a8-a7
+
+# z <- pi/4 - pi/8 #4 in relation to n?
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*cos(7 * pi/4), 
+                 y0 = a87*sin(7 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = (2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(#x0 = a87*sin(2 * pi/4), 
+                 #y0 = a87*cos(2 * pi/4), 
+                 x0 = a87*cos(0 * pi/4),
+                 y0 = a87*sin(0 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = 2*(2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*sin(1 * pi/4), 
+                 y0 = a87*cos(1 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = 3*(2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*cos(2 * pi/4),
+                 y0 = a87*sin(2 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = 4*(2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*cos(3 * pi/4),
+                 y0 = a87*sin(3 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = 5*(2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*cos(4 * pi/4),
+                 y0 = a87*sin(4 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = 6*(2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*cos(5 * pi/4),
+                 y0 = a87*sin(5 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = 7*(2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+```{r}
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*cos(6 * pi/4),
+                 y0 = a87*sin(6 * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = 0*(2*pi)/8), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+Let `n` be number of sides of outer shape.
+
+Let `k` be the edge (between `1` and `n`) that we want to be against.
+
+Here, `k = 1` is the edge against the positive $x$ axis.
+
+```{r}
+
+n <- 8
+k <- 4
+
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = 0), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = a87*cos((k-1) * pi/4),
+                 y0 = a87*sin((k-1) * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = (k+1)*(2*pi)/n), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+The above works with `n = 8` fixed rotating round `k = 1,…,8`.
+
+Now let's generalise `n`: (experiment with starting angle of n-agon?)
+
+```{r}
+n <- 6
+k <- 1
+
+rn <- 1/sin(pi/n)
+rnm1 <- 1/sin(pi/(n-1))
+an <- 1/tan(pi/n)
+anm1 <- 1/tan(pi/(n-1))
+
+rd <- rn-rnm1 # r_difference
+ad <- an-anm1
+
+
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = n, r = rn, angle = pi/2), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = ad*cos((k+1) * 2*pi/n),
+                 y0 = ad*sin((k+1) * 2*pi/n), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = (n-1), 
+                 r = rnm1, 
+                 angle = (k-1)*(2*pi)/n), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+No. let's start both the side.
+
+```{r}
+n <- 6
+k <- 2
+
+rn <- 1/sin(pi/n)
+rnm1 <- 1/sin(pi/(n-1))
+an <- 1/tan(pi/n)
+anm1 <- 1/tan(pi/(n-1))
+
+rd <- rn-rnm1 # r_difference
+ad <- an-anm1
+
+
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = n, r = rn, angle = pi/2), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = ad*cos((k-1) * 2*pi/n),
+                 y0 = ad*sin((k-1) * 2*pi/n), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = (n-1), 
+                 r = rnm1, 
+                 angle = (k+1)*(2*pi)/n), 
+                 fill = "#F3531F", colour = "#F3531F") +
+  coord_fixed()
+```
+
+Start angle at pi/2 or 3pi/4?
+
+```{r}
+#| label: draw-polygon-90
+
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1, angle = pi/2), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 7, r = 1, angle = pi/2), fill = "#F3531F", colour = "#F3531F") +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 6, r = 1, angle = pi/2), fill = "#3945AA", colour = "#3945AA") +
+    geom_regon(aes(x0 = 0, y0 = 0, sides = 5, r = 1, angle = pi/2), fill = "#3AA542", colour = "#3AA542") +
+  geom_point(data = my_points,
+             aes(x,y)) +
+  coord_fixed()
+```
+
+OK, let's try pentagon in hexagon, all the way round:
+
+```{r}
+#| label: points
+
+my_points <- tribble(
+  ~x, ~y,
+  0, 0,
+  cos(pi/5), sin(pi/5)
+)
+```
+
+```{r}
+#This works!
+n <- 5
+k <- 4
+
+rn <- 1/sin(pi/n)
+rnm1 <- 1/sin(pi/(n-1))
+an <- 1/tan(pi/n)
+anm1 <- 1/tan(pi/(n-1))
+
+rd <- rn-rnm1 # r_difference
+ad <- an-anm1
+
+my_points <- tribble(
+  ~x, ~y,
+  0, 0,
+  #rnm1*cos(pi/5), rnm1*sin(pi/5),
+  anm1, 0
+)
+
+ang <- 2*pi/n
+
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = n, r = rn, angle = pi/2), fill = "#803971", colour = "#803971") +
+  geom_regon(aes(x0 = ad*cos((k-1)*2*pi/n),
+                 y0 = ad*sin((k-1)*2*pi/n), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = (n-1), 
+                 r = rnm1, 
+                 #angle = (k+1)*(2*pi)/n), 
+                 angle = pi/2 + (k-1)*2*pi/n),
+                 fill = "#F3531F", colour = "#F3531F") +
+  #geom_point(data = my_points,
+  #           aes(x,y)) +
+  coord_fixed()
+```
+
+```{r}
+#| label: poly-in-poly-function
+
+# n is number of sides of outer polygon (inside polygon will have n-1 sides)
+# k is the side of the polygon to attach the inner shape to (1 is right-most vertical, then clockwise)
+inscribe_polygon_first_attempt <- function(n, k, col_n, col_nm1, x0 = 0, y0 = 0, angle = pi/2) {
+  
+  rn <- 1/sin(pi/n)
+  rnm1 <- 1/sin(pi/(n-1))
+  an <- 1/tan(pi/n)
+  anm1 <- 1/tan(pi/(n-1))
+  
+  rd <- rn-rnm1 # r_difference
+  ad <- an-anm1
+  
+  ang <- 2*pi/n
+  
+  ggplot() +
+    geom_regon(aes(x0 = x0, y0 = y0, sides = n, r = rn, angle = angle), fill = col_n, colour = col_n) + #angle replaces pi/2
+    geom_regon(aes(x0 = ad*cos((k-1)*2*pi/n),
+                   y0 = ad*sin((k-1)*2*pi/n), 
+                   #x0 = 0,
+                   #y0 = 0,
+                   sides = (n-1), 
+                   r = rnm1, 
+                   angle = angle + (k-1)*2*pi/n), #(RHS angle replaces pi/2)
+                   fill = col_nm1, colour = col_nm1) +
+    coord_fixed()  
+  
+  
+}
+
+# This works - for outer polygon with rightmost edge vertical (default)
+# For non-default angle, we get a pair of lined-up, but centre in the wrong place. Need to do something with x0, y0
+```
+
+```{r}
+
+inscribe_polygon(7, 2, "#803971", "#F3531F", angle = 4*pi/13)
+
+```
+
+```{r}
+# The beginning of the picture!
+inscribe_polygon(8, 6, "#803971", "#F3531F")
+```
+
+But what we want is to return what's necessary for the *next* iteration!
+
+The outer needs to become the inner!
+
+```{r}
+inscribe_polygon_data <- function(n, k, x0 = 0, y0 = 0, angle = pi/2) {
+  
+  rn <- 1/sin(pi/n)
+  rnm1 <- 1/sin(pi/(n-1))
+  an <- 1/tan(pi/n)
+  anm1 <- 1/tan(pi/(n-1))
+  
+  rd <- rn-rnm1 # r_difference
+  ad <- an-anm1
+  
+  ang <- 2*pi/n
+  
+  return(list(new_x0 = ad*cos((k-1)*2*pi/n),
+              new_y0 = ad*sin((k-1)*2*pi/n),
+              r = rnm1,
+              angle = angle + (k-1)*2*pi/n
+              )
+         )
+}
+
+#new_data <- inscribe_polygon(8, 6) 
+```
+
+```{r}
+hept_data <- inscribe_polygon_data(8, 6) 
+
+my_points <- tribble(
+  ~x, ~y,
+  hept_data$new_x0, hept_data$new_y0,
+)
+
+ggplot() +
+  # octogon
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = pi/2), fill = "#803971", colour = "#803971") + 
+  # heptagon
+  geom_regon(aes(x0 = hept_data$new_x0,
+                 y0 = hept_data$new_y0, 
+                 sides = 7, 
+                 r = hept_data$r, 
+                 angle = hept_data$angle),
+                 fill = "#F3531F", colour = "#F3531F") +
+  geom_point(data = my_points,
+             aes(x,y)) + 
+  #geom_regon(aes(x0 = hept_data$new_x0, y0 = hept_data$new_y0, sides = 6, r = 1/sin(pi/6), angle = pi/2 + hept_data$angle), fill = "#3945AA", colour = "#3945AA") +  
+  coord_fixed()
+  
+```
+
+NEED TO WORK OUT HOW TO DEAL WITH ANGLE, HOW TO START WITH HEPTAGON BEING NEW HEPTAGON
+
+```{r}
+hex_data <- inscribe_polygon_data(7, 1, hept_data$new_x0, hept_data$new_y0, hept_data$angle)
+
+ggplot() +
+  # octogon
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = 1/sin(pi/8), angle = pi/2), fill = "#803971", colour = "#803971") + 
+  # heptagon
+  geom_regon(aes(x0 = hept_data$new_x0,
+                 y0 = hept_data$new_y0, 
+                 sides = 7, 
+                 r = hept_data$r, 
+                 angle = hept_data$angle),
+                 fill = "#F3531F", colour = "#F3531F") +
+  # hexagon
+  geom_regon(aes(x0 = hex_data$new_x0,
+                 y0 = hex_data$new_y0, 
+                 sides = 6, 
+                 r = hex_data$r, 
+                 angle = hex_data$angle),
+                 fill = "#3945AA", colour = "#3945AA") +  
+  geom_point(data = my_points,
+             aes(x,y)) + 
+  #geom_regon(aes(x0 = hept_data$new_x0, y0 = hept_data$new_y0, sides = 6, r = 1/sin(pi/6), angle = pi/2 + hept_data$angle), fill = "#3945AA", colour = "#3945AA") +  
+  coord_fixed()
+  
+```
+
+Now try multiple polygons in one function: We'll always start with the octogon (could generalise to more sides, but would require more colours!)
+
+First, experiment with getting all info into tibble, then plotting in one go:
+
+```{r}
+#| label: polygon-vec
+
+k8 <- 6
+k7 <- 2
+
+r6 <- 1/sin(pi/6)
+a6 <- 1/tan(pi/6)
+
+r76 <- r7-r6
+a76 <- a7-a6
+
+
+r87 <- r8-r7
+
+purple <- "#803971"
+orange <- "#F3531F"
+blue <- "#3945AA"
+green <- "#3AA542"
+red <- "#E53822"
+yellow <- "#F7A520"
+
+
+ggplot() +
+  geom_regon(aes(
+    x0 = c(0, a87*cos((k8-1)*2*pi/8), a87*cos((k8-1)*2*pi/8) + a76*cos((k7-1)*2*pi/7)),
+    y0 = c(0, a87*sin((k8-1)*2*pi/8), a87*sin((k8-1)*2*pi/8) + a76*sin((k7-1)*2*pi/7)),
+    sides = 8:6,
+    angle = c(pi/2, pi/2 + (k8-1)*2*pi/8, pi/2 + (k8-1)*2*pi/8 + (k7-1)*2*pi/7),
+    r = c(r8, r7, r6),
+    colour = c(purple, orange, "blue"), # not sure why blue hex code not working
+    fill = c(purple, orange, "blue")
+  )) +
+  #geom_regon(aes(x0 = 0, y0 = 0, sides = 4, r = 1, angle = 0)) +
+  coord_fixed() +
+  scale_colour_identity() +
+  scale_fill_identity()
+
+# This works with first octogon and heptagon
+# The guess work for the hexagon isn't right (or hexagon isn't appearing for some other reason)
+```
+
+```{r}
+k7 <- 1
+
+ggplot() +
+  geom_regon(aes(x0 = a87*cos((k-1) * pi/4),
+                 y0 = a87*sin((k-1) * pi/4), 
+                 #x0 = 0,
+                 #y0 = 0,
+                 sides = 7, 
+                 r = 1/sin(pi/7), 
+                 angle = pi/2 + (k8-1)*2*pi/8, 
+                 fill = "#F3531F", colour = "#F3531F")) +
+  geom_regon(aes(x0 = a87*cos((k8-1)*2*pi/8) + a76*cos((k7-1)*2*pi/7),
+                 y0 = a87*sin((k8-1)*2*pi/8) + a76*sin((k7-1)*2*pi/7),
+                 sides = 6,
+                 angle = pi/2 + (k8-1)*2*pi/8 + (k7-1)*2*pi/7,
+                 r = r6,
+             colour = "#3945AA",
+             fill = "#3945AA")) +
+  coord_fixed() +
+  scale_colour_identity() +
+  scale_fill_identity()  
+
+# This works with first heptagon but the guess work for the hexagon isn't right.
+# Angles are fine, but centre coordinates not
+```
+
+```{r}
+    geom_regon(aes(x0 = x0, y0 = y0, sides = n, r = rn, angle = angle), fill = col_n, colour = col_n) + #angle replaces pi/2
+    geom_regon(aes(x0 = ad*cos((k-1)*2*pi/n),
+                   y0 = ad*sin((k-1)*2*pi/n), 
+                   #x0 = 0,
+                   #y0 = 0,
+                   sides = (n-1), 
+                   r = rnm1, 
+                   angle = angle + (k-1)*2*pi/n), #(RHS angle replaces pi/2)
+                   fill = col_nm1, colour = col_nm1) +
+```
+
+Can also plot with vectors, rather than data frames.
+
+```{r}
+inscribe_all_polygon <- function(n_max = 8, n_min = 3, k, col_n, col_nm1, x0 = 0, y0 = 0, angle = pi/2) {
+  
+  #rn <- 1/sin(pi/n)
+  #rnm1 <- 1/sin(pi/(n-1))
+  #an <- 1/tan(pi/n)
+  #anm1 <- 1/tan(pi/(n-1))
+  
+  rs <- 1/sin(pi/(n_max:n_min))
+  
+  
+  rd <- rn-rnm1 # r_difference
+  ad <- an-anm1
+  
+  ang <- 2*pi/n
+  
+  ggplot() +
+    geom_regon(aes(x0 = x0, y0 = y0, sides = n, r = rn, angle = angle), fill = col_n, colour = col_n) + #angle replaces pi/2
+    geom_regon(aes(x0 = ad*cos((k-1)*2*pi/n),
+                   y0 = ad*sin((k-1)*2*pi/n), 
+                   #x0 = 0,
+                   #y0 = 0,
+                   sides = (n-1), 
+                   r = rnm1, 
+                   angle = angle + (k-1)*2*pi/n), #(RHS angle replaces pi/2)
+                   fill = col_nm1, colour = col_nm1) +
+    coord_fixed()  
+  
+  
+}
+
+```
+
+## Generalise `inscribe_polygon`
+
+```{r}
+#| label: poly-in-poly-function-2
+
+# n is number of sides of outer polygon (inside polygon will have n-1 sides)
+# k is the side of the polygon to attach the inner shape to (1 is right-most vertical, then clockwise)
+inscribe_polygon <- function(n, k, col_n, col_nm1, x0 = 0, y0 = 0, angle = pi/2) {
+  
+  rn <- 1/sin(pi/n)
+  rnm1 <- 1/sin(pi/(n-1))
+  an <- 1/tan(pi/n)
+  anm1 <- 1/tan(pi/(n-1))
+  
+  rd <- rn-rnm1 # r_difference
+  ad <- an-anm1
+  
+  ang <- 2*pi/n
+  
+  ggplot() +
+    geom_regon(aes(x0 = x0, y0 = y0, sides = n, r = rn, angle = angle), fill = col_n, colour = col_n) + #angle replaces pi/2
+    geom_regon(aes(x0 = ad*cos((k-1)*2*pi/n),
+                   y0 = ad*sin((k-1)*2*pi/n), 
+                   #x0 = 0,
+                   #y0 = 0,
+                   sides = (n-1), 
+                   r = rnm1, 
+                   angle = angle + (k-1)*2*pi/n), #(RHS angle replaces pi/2)
+                   fill = col_nm1, colour = col_nm1) +
+    coord_fixed()  
+  
+  
+}
+
+# This works - for outer polygon with rightmost edge vertical (default)
+# For non-default angle, we get a pair of lined-up, but centre in the wrong place. Need to do something with x0, y0
+```
+
+```{r}
+rn <- 1/sin(pi/n)
+rnm1 <- 1/sin(pi/(n-1))
+an <- 1/tan(pi/n)
+anm1 <- 1/tan(pi/(n-1))
+  
+rd <- rn-rnm1 # r_difference
+ad <- an-anm1
+
+r5 <- 1/sin(pi/5)
+a5 <- 1/tan(pi/5)
+r65 <- r6 - r5
+a65 <- a6 - a5
+```
+
+```{r}
+
+theta <- pi/11
+
+x <- 0.5
+y <- 1/3
+
+circle_df <- tribble(
+  ~x0, ~y0, ~r,
+  x, y, a65
+)
+
+ggplot() +
+  geom_regon(aes(x0 = x, y0 = y, sides = 6, r = r6, angle = pi/2 + theta, color = "#3945AA", fill = "#3945AA"))  +
+  geom_regon(aes(x0 = x + a65 * cos(theta), y0 = y + a65 * sin(theta), sides = 5, r = r5, angle = pi/2 + theta, color = "#3AA542", fill = "#3AA542"))  +
+  #geom_regon(aes(x0 = x, y0 = y, sides = 5, r = r5, angle = pi/2 + theta), colour = "black")  +
+  geom_spoke(aes(x = x, y = y, angle = theta , radius = a5)) +
+  #geom_spoke(aes(x = x, y = y, angle = theta , radius = a5)) +
+  geom_circle(data = circle_df, aes(x0 = x0, y0 = y0, r = r)) +   
+  coord_fixed() +
+  scale_colour_identity() +
+  scale_fill_identity() 
+
+# Works!
+```
+
+Now need to generalise for k:
+
+This works!
+
+```{r}
+
+#This works!
+
+theta <- pi/11
+
+x <- 0.5
+y <- 1/3
+
+k <- 1
+
+ang <- theta + (k-1)*2*pi/6
+
+circle_df <- tribble(
+  ~x0, ~y0, ~r,
+  x, y, a65
+)
+
+ggplot() +
+  geom_regon(aes(x0 = x, y0 = y, sides = 6, r = r6, angle = pi/2 + theta, color = "#3945AA", fill = "#3945AA"))  +
+  #geom_regon(aes(x0 = x + a65 * cos(theta), y0 = y + a65 * sin(theta), sides = 5, r = r5, angle = pi/2 + theta + (k-1)*2*pi/6, color = "#3AA542", fill = "#3AA542"))  +
+  geom_regon(aes(x0 = x + a65*cos(ang), y0 = y + a65*sin(ang), sides = 5, r = r5, angle = pi/2 + theta + (k-1)*2*pi/6, color = "#3AA542", fill = "#3AA542"))  +
+  #geom_spoke(aes(x = x, y = y, angle = theta + (k-1)*2*pi/6, radius = a5)) +
+  #geom_spoke(aes(x = x, y = y, angle = 0, radius = a5)) +
+  #geom_spoke(aes(x = x, y = y, angle = 3*pi/2, radius = abs(a5 * sin(ang)))) +
+  #geom_spoke(aes(x = 0, y = 0, angle = 3pi, radius = a5)) +
+  #geom_circle(data = circle_df, aes(x0 = x0, y0 = y0, r = r)) +   
+  coord_fixed() +
+  scale_colour_identity() +
+  scale_fill_identity() 
+ 
+```
+
+Now put in a function:
+
+This works! This is the final generalisation for plotting one polygon inside another.
+
+```{r}
+#| label: inscribe-polygon
+
+# n is number of sides of outer polygon (inside polygon will have n-1 sides)
+# k is the side of the polygon to attach the inner shape to (1 is right-most vertical when angle = pi/2, then clockwise)
+# angle starts from east and increases clockwise
+
+inscribe_polygon <- function(n = 8, k = 1, x0 = 0, y0 = 0, angle = 0, col_n = "black", col_nm1 = "blue") {
+  
+  rn <- 1/sin(pi/n)
+  rnm1 <- 1/sin(pi/(n-1))
+  an <- 1/tan(pi/n)
+  anm1 <- 1/tan(pi/(n-1))
+  
+  rd <- rn-rnm1 # r_difference
+  ad <- an-anm1
+  
+  ang <- angle + (k-1)*2*pi/n
+  #ang <- pi/2 + angle + (k-1)*2*pi/n
+  
+  ggplot() +
+    geom_regon(aes(x0 = x0, y0 = y0, sides = n, r = rn, angle = pi/2 + angle), 
+               color = col_n, fill = col_n) + 
+    geom_regon(aes(x0 = x0 + ad*cos(ang), y0 = y0 + ad*sin(ang), sides = n-1, r = rnm1, angle = pi/2 + ang), color = col_nm1, fill = col_nm1)  +
+    #geom_regon(aes(x0 = x0, y0 = y0, sides = n, r = rn, angle = angle), 
+    #           color = col_n, fill = col_n) + 
+    #geom_regon(aes(x0 = x0 + ad*cos(ang), y0 = y0 + ad*sin(ang), sides = n-1, r = rnm1, angle = ang), color = col_nm1, fill = col_nm1)  +
+    coord_fixed()  
+  
+}
+
+
+```
+
+```{r}
+inscribe_polygon(n = 7, k = 6, x0 = hept$x0, y0 = hept$y0, angle = hept$angle)
+```
+
+
+```{r}
+
+inscribe_polygon(n = 8, k = 5, x0 = 0.5, y0 = 1/3, angle = pi/5, col_n = "#803971", col_nm1 = "#3945AA")
+```
+
+OK, that's the maths finally worked out!
+
+Now, think about what format will work best for the shiny app.
+
+```{r}
+
+x0 <- c(0,1,2)
+y0 <- c(2,0,1)
+sides <- c(7:5)
+r <- c(3, 2, 1) 
+angle <- c(pi/11, pi/13, pi/2)
+my_colours <- c("#803971", "#F3531F", "#3945AA")
+
+polygon_df <- tibble(x0 = x0, y0 = y0, sides = sides, r = r, angle = angle, colour = my_colours)
+
+ggplot(polygon_df) +
+  geom_regon(aes(x0 = x0, y0 = y0, sides = sides, r = r, angle = angle, color = my_colours, fill = my_colours)) +
+  coord_fixed() +
+  scale_colour_identity() +
+  scale_fill_identity()
+
+# Hmm, they don't plot in order. The pentagon should be on top!
+```
+
+Use plotting function to overlay? Or plotting function that does all six shapes in one go?
+
+```{r}
+
+inscribe_polygon_data <- function(n = 8, k = NULL, x0 = 0, y0 = 0, angle = 0) {
+  
+  if (is.null(k)) k <- sample(1:n, 1)
+  
+  rn <- 1/sin(pi/n)
+  rnm1 <- 1/sin(pi/(n-1))
+  an <- 1/tan(pi/n)
+  anm1 <- 1/tan(pi/(n-1))
+  
+  rd <- rn-rnm1 # r_difference
+  ad <- an-anm1
+  
+  ang <- angle + (k-1)*2*pi/n
+  
+  out <- list(n = n - 1, x0 = x0 + ad*cos(ang), y0 = y0 + ad*sin(ang), angle = pi/2 + ang, r = rn)
+  
+  return(out)
+  
+  #ggplot() +
+  #  geom_regon(aes(x0 = x0, y0 = y0, sides = n, r = rn, angle = pi/2 + angle), 
+         #      color = col_n, fill = col_n) + 
+  #  geom_regon(aes(x0 = x0 + ad*cos(ang), y0 = y0 + ad*sin(ang), sides = n-1, r = rnm1, angle = pi/2 + ang), color = col_nm1, fill = col_nm1)  +
+  #  coord_fixed()  
+  
+}
+
+```
+
+```{r}
+#This layering works, whereas vectors and dataframes are buggy in terms of order
+
+#ggplot() +
+#  geom_regon(aes(x0=0,y0=0,sides=8,r=1,angle=0), colour = "red", fill = "red") +
+#  geom_regon(aes(x0=0,y0=0,sides=7,r=1,angle=0), colour = "yellow", fill = "yellow") +
+#  geom_regon(aes(x0=0,y0=0,sides=6,r=1,angle=0), colour = "blue", fill = "blue") +
+#  geom_regon(aes(x0=0,y0=0,sides=5,r=1,angle=0), colour = "green", fill = "green") +
+#  coord_fixed()
+```
+
+```{r}
+inscribe_polygon_data()
+```
+
+
+```{r}
+#| label: plot-all-default
+
+# plot all (need to thing about how to handle k, both for default and random)
+
+# indexed by number of sides of shape
+cols <- c(NA, NA, "#F7A520", "#E53822", "#3AA542", "#3945AA", "#F3531F", "#803971")
+
+rn <- 1/sin(pi/(1:8))
+
+hept <- inscribe_polygon_data(n = 8, k = 6)
+hex <- inscribe_polygon_data(n = 7, k = 6, x0 = hept$x0, y0 = hept$y0, angle = hept$angle - pi/2)
+pent <- inscribe_polygon_data(n = 6, k = 5, x0 = hex$x0, y0 = hex$y0, angle = hex$angle - pi/2)
+sq <- inscribe_polygon_data(n = 5, k = 4, x0 = pent$x0, y0 = pent$y0, angle = pent$angle - pi/2)
+tri <- inscribe_polygon_data(n = 4, k = 3, x0 = sq$x0, y0 = sq$y0, angle = sq$angle - pi/2)
+
+ggplot() +
+  geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = rn[8], angle = 0), colour = cols[8], fill = cols[8]) +
+  geom_regon(aes(x0 = hept$x0, y0 = hept$y0, sides = 7, r = rn[7], angle = hept$angle), colour = cols[7], fill = cols[7]) +
+  geom_regon(aes(x0 = hex$x0, y0 = hex$y0, sides = 6, r = rn[6], angle = hex$angle), colour = cols[6], fill = cols[6]) +
+  geom_regon(aes(x0 = pent$x0, y0 = pent$y0, sides = 5, r = rn[5], angle = pent$angle), colour = cols[5], fill = cols[5]) +
+  geom_regon(aes(x0 = sq$x0, y0 = sq$y0, sides = 4, r = rn[4], angle = sq$angle), colour = cols[4], fill = cols[4]) +  
+  geom_regon(aes(x0 = tri$x0, y0 = tri$y0, sides = 3, r = rn[3], angle = tri$angle), colour = cols[3], fill = cols[3]) + 
+  coord_fixed()
+
+```
+
+```{r}
+inscribe_polygon(n = 7, k = 6, x0 = hept$x0, y0 = hept$y0, angle = hept$angle - pi/2)
+```
+
+
+Maybe: Later, try using `ggfx` to add some colour texture.
+
+<https://ggfx.data-imaginist.com/index.html>
+
+<https://www.r-bloggers.com/2021/03/say-goodbye-to-good-taste/>
