@@ -965,7 +965,6 @@ inscribe_polygon <- function(n = 8, k = 1, x0 = 0, y0 = 0, angle = 0, col_n = "b
 inscribe_polygon(n = 7, k = 6, x0 = hept$x0, y0 = hept$y0, angle = hept$angle)
 ```
 
-
 ```{r}
 
 inscribe_polygon(n = 8, k = 5, x0 = 0.5, y0 = 1/3, angle = pi/5, col_n = "#803971", col_nm1 = "#3945AA")
@@ -1042,7 +1041,6 @@ inscribe_polygon_data <- function(n = 8, k = NULL, x0 = 0, y0 = 0, angle = 0) {
 inscribe_polygon_data()
 ```
 
-
 ```{r}
 #| label: plot-all-default
 
@@ -1068,12 +1066,50 @@ ggplot() +
   geom_regon(aes(x0 = tri$x0, y0 = tri$y0, sides = 3, r = rn[3], angle = tri$angle), colour = cols[3], fill = cols[3]) + 
   coord_fixed()
 
+# Got it! This works
+
 ```
 
 ```{r}
-inscribe_polygon(n = 7, k = 6, x0 = hept$x0, y0 = hept$y0, angle = hept$angle - pi/2)
+#| label: plot-all-function
+
+# default k <- c(6, 6, 5, 4, 3)
+# k should be NULL or a vector or length 5
+
+max_bill_rearrange <- function(k = NULL) {
+  
+  if (is.null(k)) k <- c(sample(8,1), sample(7,1), sample(6,1), sample(5,1), sample(4,1))
+  
+  cols <- c(NA, NA, "#F7A520", "#E53822", "#3AA542", "#3945AA", "#F3531F", "#803971")
+
+  rn <- 1/sin(pi/(1:8))
+
+  hept <- inscribe_polygon_data(n = 8, k = k[1])
+  hex <- inscribe_polygon_data(n = 7, k = k[2], x0 = hept$x0, y0 = hept$y0, angle = hept$angle - pi/2)
+  pent <- inscribe_polygon_data(n = 6, k = k[3], x0 = hex$x0, y0 = hex$y0, angle = hex$angle - pi/2)
+  sq <- inscribe_polygon_data(n = 5, k = k[4], x0 = pent$x0, y0 = pent$y0, angle = pent$angle - pi/2)
+  tri <- inscribe_polygon_data(n = 4, k = k[5], x0 = sq$x0, y0 = sq$y0, angle = sq$angle - pi/2)
+
+  ggplot() +
+    geom_regon(aes(x0 = 0, y0 = 0, sides = 8, r = rn[8], angle = 0), colour = cols[8], fill = cols[8]) +
+    geom_regon(aes(x0 = hept$x0, y0 = hept$y0, sides = 7, r = rn[7], angle = hept$angle), colour = cols[7], fill = cols[7]) +
+    geom_regon(aes(x0 = hex$x0, y0 = hex$y0, sides = 6, r = rn[6], angle = hex$angle), colour = cols[6], fill = cols[6]) +
+    geom_regon(aes(x0 = pent$x0, y0 = pent$y0, sides = 5, r = rn[5], angle = pent$angle), colour = cols[5], fill = cols[5]) +
+    geom_regon(aes(x0 = sq$x0, y0 = sq$y0, sides = 4, r = rn[4], angle = sq$angle), colour = cols[4], fill = cols[4]) +  
+    geom_regon(aes(x0 = tri$x0, y0 = tri$y0, sides = 3, r = rn[3], angle = tri$angle), colour = cols[3], fill = cols[3]) + 
+    coord_fixed() 
+
+}
+
 ```
 
+```{r}
+max_bill_rearrange() # random max bill generator
+```
+
+```{r}
+max_bill_rearrange(k = c(6, 6, 5, 4, 3))
+```
 
 Maybe: Later, try using `ggfx` to add some colour texture.
 
