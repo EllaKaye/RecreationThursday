@@ -13,13 +13,15 @@ library(ggplot2)
 source("max-bill.R")
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- fluidPage(align = "center",
 
     # Application title
-    titlePanel("#RecreationThursday"),
+    # titlePanel("#RecreationThursday"),
 
     # Main layout
+    br(),
     plotOutput("plot"),
+    br(),
     actionButton("rearrange", "Rearrange")
 )
 
