@@ -22,8 +22,14 @@ ui <- fluidPage(align = "center",
     br(),
     plotOutput("plot"),
     br(),
-    actionButton("rearrange", "Rearrange")
-)
+    actionButton("rearrange", "Rearrange", 
+                 style = 
+                   "background-color: #F4F2E9; 
+                    border-width: 0;
+                    font-family: Times"),
+    #br(),
+    #actionButton("original", "Original")
+  )
 
 # Define server logic required to...
 server <- function(input, output) {
@@ -33,6 +39,10 @@ server <- function(input, output) {
     observeEvent(input$rearrange, {
       v$k <- sample_k()
     })
+    
+   # observeEvent(input$original, {
+  #    v$k <- c(6, 6, 5, 4, 3)
+  #  })
 
     output$plot <- renderPlot({
         # 
