@@ -1071,6 +1071,15 @@ ggplot() +
 ```
 
 ```{r}
+#| label: sample-k
+
+sample_k <- function() {
+  c(sample(8,1), sample(7,1), sample(6,1), sample(5,1), sample(4,1))
+}
+```
+
+
+```{r}
 #| label: max-bill-rearrange
 
 # default k <- c(6, 6, 5, 4, 3)
@@ -1078,9 +1087,9 @@ ggplot() +
 
 max_bill_rearrange <- function(k = NULL) {
   
-  if (is.null(k)) k <- c(sample(8,1), sample(7,1), sample(6,1), sample(5,1), sample(4,1))
+  if (is.null(k)) k <- sample_k()
   
-  cols <- c(NA, NA, "#F7A520", "#E53822", "#3AA542", "#3945AA", "#F3531F", "#803971")
+  cols <- c(NA, NA, "#F7A520", "#E53822", "#3AA542", "#3945AA", "#F45D1B", "#803971")
 
   rn <- 1/sin(pi/(1:8))
 
@@ -1102,7 +1111,8 @@ max_bill_rearrange <- function(k = NULL) {
     annotate("text", label = "ella kaye", x = -a8, y = 2.92, hjust = 0, family = "Times", size = 2.5) +
     annotate("text", label = "die grafischen reihen", x = a8, y = 3.2, hjust = 1, family = "Times", size = 3.5) +
     annotate("text", label = "rearranged", x = a8, y = 2.92, hjust = 1, family = "Times", size = 2.5) +
-    annotate("text", label = "verlag gerd hatje", x = 0, y = -3.2, family = "Times", size = 2.5) +
+    annotate("text", label = "#RecreationThursday", x = 0, y = -3.1, family = "Times", size = 2.5) +
+    annotate("text", label = "@DataScixDesign", x = 0, y = -3.38, family = "Times", size = 2.5) +
     theme_void() +
     theme(panel.background = element_rect(fill = '#F4F2E9', colour = '#F4F2E9'))
 }
@@ -1116,6 +1126,16 @@ max_bill_rearrange() # random max bill generator
 ```{r}
 max_bill_rearrange(k = c(6, 6, 5, 4, 3)) # the default
 ```
+
+```{r}
+max_bill_rearrange(k = rep(1, 5)) 
+```
+
+```{r}
+max_bill_rearrange(k = 5:1) 
+```
+
+Explanation of `k`: For the octogon, `k = 1` is the east-most edge. For the remaining polygons, `k = 1` is the edge shared by that polygon and the one it is inscribed in. Then the remaining values of `k` go round the edges clockwise.
 
 Maybe: Later, try using `ggfx` to add some colour texture.
 
