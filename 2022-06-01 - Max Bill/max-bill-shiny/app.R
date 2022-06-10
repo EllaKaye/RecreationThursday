@@ -20,6 +20,7 @@ ui <- fluidPage(align = "center",
 
     # Main layout
     br(),
+    #plotOutput("plot", height = "600px"),
     plotOutput("plot"),
     br(),
     actionButton("rearrange", "Rearrange", 
