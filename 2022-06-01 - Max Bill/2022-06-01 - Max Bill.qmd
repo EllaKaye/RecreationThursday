@@ -1078,7 +1078,6 @@ sample_k <- function() {
 }
 ```
 
-
 ```{r}
 #| label: max-bill-rearrange
 
@@ -1129,6 +1128,10 @@ max_bill_rearrange(k = c(6, 6, 5, 4, 3)) # the default
 
 ```{r}
 max_bill_rearrange(k = rep(1, 5)) 
+```
+
+```{r}
+max_bill_rearrange(k = c(7, rep(1, 4))) 
 ```
 
 ```{r}
