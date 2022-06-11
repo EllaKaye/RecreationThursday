@@ -31,8 +31,8 @@ ui <- navbarPage(
     "random",
     align = "center",
     br(),
-    #plotOutput("plot", height = "600px"),
-    plotOutput("plotRandom"),
+    plotOutput("plotRandom", height = "500px"),
+    #plotOutput("plotRandom"),
     br(),
     actionButton("rearrange",
                  "rearrange",
@@ -83,7 +83,9 @@ ui <- navbarPage(
              ),
              
              # Show a plot of the generated distribution
-             mainPanel(plotOutput("plotManual"))
+             mainPanel(
+               plotOutput("plotManual", height = "500px"), 
+               )
            )),
   
   tabPanel("about",
