@@ -50,12 +50,12 @@ max_bill_rearrange <- function(k = NULL) {
     geom_regon(aes(x0 = sq$x0, y0 = sq$y0, sides = 4, r = rn[4], angle = sq$angle), colour = cols[4], fill = cols[4]) +  
     geom_regon(aes(x0 = tri$x0, y0 = tri$y0, sides = 3, r = rn[3], angle = tri$angle), colour = cols[3], fill = cols[3]) + 
     coord_fixed(xlim = c(-3.5, 3.5), ylim = c(-3.5,3.5)) +
-    annotate("text", label = "max bill", x = -a8, y = 3.2, hjust = 0, family = "Times", size = 3.5) +
-    annotate("text", label = "ella kaye", x = -a8, y = 2.92, hjust = 0, family = "Times", size = 2.5) +
-    annotate("text", label = "die grafischen reihen", x = a8, y = 3.2, hjust = 1, family = "Times", size = 3.5) +
-    annotate("text", label = "rearranged", x = a8, y = 2.92, hjust = 1, family = "Times", size = 2.5) +
-    annotate("text", label = "#RecreationThursday", x = 0, y = -3.1, family = "Times", size = 2.5) +
-    annotate("text", label = "@DataScixDesign", x = 0, y = -3.38, family = "Times", size = 2.5) +
+    annotate("text", label = "max bill", x = -a8, y = 3.2, hjust = 0, family = "Times", size = 4.5) +
+    annotate("text", label = "ella kaye", x = -a8, y = 2.92, hjust = 0, family = "Times", size = 3.5) +
+    annotate("text", label = "die grafischen reihen", x = a8, y = 3.2, hjust = 1, family = "Times", size = 4.5) +
+    annotate("text", label = "rearranged", x = a8, y = 2.92, hjust = 1, family = "Times", size = 3.5) +
+    annotate("text", label = "#RecreationThursday", x = 0, y = -3.1, family = "Times", size = 3.5) +
+    annotate("text", label = "@DataScixDesign", x = 0, y = -3.38, family = "Times", size = 3.5) +
     theme_void() +
     theme(panel.background = element_rect(fill = '#F4F2E9', colour = '#F4F2E9'))
 }
