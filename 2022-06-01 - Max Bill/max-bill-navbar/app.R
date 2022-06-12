@@ -13,7 +13,7 @@ source("max-bill.R")
 
 # Define UI for application that draws a histogram
 ui <- navbarPage(
-  "#RecreationThursday max bill",
+  "",
   
   # integer-only tick marks on sliders
   tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
@@ -21,21 +21,20 @@ ui <- navbarPage(
   theme = bslib::bs_theme(
     primary = "#3945AA",
     #base_font = sass::font_google("Source Sans Pro"),
-    base_font = sass::font_face(family = 'LEMONMILKPro-UltraLight',
-                                src = "local('LEMONMILKPro-UltraLight'), url('/LEMONMILKPro-UltraLight.woff2') format('woff2'), url('/LEMONMILKPro-UltraLight.woff') format('woff')"),
+    base_font = sass::font_face(family = 'LEMONMILKPro-Light',
+                                src = "local('LEMONMILKPro-Light'), url('/LEMONMILKPro-Light.woff2') format('woff2'), url('/LEMONMILKPro-Light.woff') format('woff')"),
     "navbar-bg" = "#fff",
   ),
   
   tabPanel(
-    "random",
+    "RANDOM",
     align = "center",
-    br(),
     plotOutput("plotRandom", height = "500px"),
     #plotOutput("plotRandom"),
     br(),
     actionButton(
       "rearrange",
-      "rearrange",
+      "REARRANGE",
       style =
         "background-color: #3945AA;
                  border-radius: 0;
@@ -45,7 +44,7 @@ ui <- navbarPage(
     ),
   ),
   
-  tabPanel("manual",
+  tabPanel("SLIDERS",
            sidebarLayout(
              sidebarPanel(
                style = "background: white; border-radius: 0",
@@ -90,7 +89,7 @@ ui <- navbarPage(
              mainPanel(plotOutput("plotManual", height = "500px"),)
            )),
   
-  tabPanel("about",
+  tabPanel("ABOUT",
            includeMarkdown("about.md")
            
            
