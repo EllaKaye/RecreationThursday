@@ -41,6 +41,7 @@ ui <- navbarPage(
                  "rearrange",
                  style =
                    "background-color: #3945AA;
+                 border-radius: 0;
                  color: #ffffff;
           border-width: 0
       "),
@@ -48,7 +49,7 @@ ui <- navbarPage(
   
   tabPanel("manual",
            sidebarLayout(
-             sidebarPanel(
+             sidebarPanel(style = "background: white; border-radius: 0",
                sliderInput(
                  "hept",
                  "heptagon",
