@@ -8,8 +8,7 @@
 #
 
 library(shiny)
-library(ggplot2)
-library(ggforce)
+library(sass)
 source("max-bill.R")
 
 # Define UI for application that draws a histogram
@@ -21,7 +20,9 @@ ui <- navbarPage(
   
   theme = bslib::bs_theme(
     primary = "#3945AA",
-    base_font = bslib::font_google("Source Sans Pro"),
+    #base_font = sass::font_google("Source Sans Pro"),
+    base_font = sass::font_face(family = 'LEMONMILKPro-UltraLight',
+                                src = "local('LEMONMILKPro-UltraLight'), url('/LEMONMILKPro-UltraLight.woff2') format('woff2'), url('/LEMONMILKPro-UltraLight.woff') format('woff')"),
     "navbar-bg" = "#fff",
   ),
   
