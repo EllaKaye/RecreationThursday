@@ -8,6 +8,9 @@
 #
 
 library(shiny)
+library(ggplot2)
+library(ggforce)
+source("max-bill.R")
 
 # Define UI for application that draws a histogram
 ui <- navbarPage(
@@ -22,7 +25,7 @@ ui <- navbarPage(
     #    #bg = "white",
     primary = "#3945AA",
     base_font = bslib::font_google("Source Sans Pro"),
-    #    "navbar-bg" = "#F4F2E9",
+       "navbar-bg" = "#fff",
     #    "code-bg" = "red"
     
   ),
@@ -37,7 +40,8 @@ ui <- navbarPage(
     actionButton("rearrange",
                  "rearrange",
                  style =
-                   "background-color: #F4F2E9;
+                   "background-color: #3945AA;
+                 color: #ffffff;
           border-width: 0
       "),
   ),
