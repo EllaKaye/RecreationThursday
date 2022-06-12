@@ -25,7 +25,7 @@ ui <- navbarPage(
     #    #bg = "white",
     primary = "#3945AA",
     base_font = bslib::font_google("Source Sans Pro"),
-       "navbar-bg" = "#fff",
+    "navbar-bg" = "#fff",
     #    "code-bg" = "red"
     
   ),
@@ -37,19 +37,22 @@ ui <- navbarPage(
     plotOutput("plotRandom", height = "500px"),
     #plotOutput("plotRandom"),
     br(),
-    actionButton("rearrange",
-                 "rearrange",
-                 style =
-                   "background-color: #3945AA;
+    actionButton(
+      "rearrange",
+      "rearrange",
+      style =
+        "background-color: #3945AA;
                  border-radius: 0;
                  color: #ffffff;
           border-width: 0
-      "),
+      "
+    ),
   ),
   
   tabPanel("manual",
            sidebarLayout(
-             sidebarPanel(style = "background: white; border-radius: 0",
+             sidebarPanel(
+               style = "background: white; border-radius: 0",
                sliderInput(
                  "hept",
                  "heptagon",
@@ -88,9 +91,7 @@ ui <- navbarPage(
              ),
              
              # Show a plot of the generated distribution
-             mainPanel(
-               plotOutput("plotManual", height = "500px"), 
-               )
+             mainPanel(plotOutput("plotManual", height = "500px"),)
            )),
   
   tabPanel("about",
@@ -100,10 +101,10 @@ ui <- navbarPage(
            # Application title
            #titlePanel("Max Bill"),
            
-           # Sidebar with a slider input for number of bins),
+           # Sidebar with a slider input for number of bins),),
   ),
-)
-
+  )
+  
   # Define server logic required to draw a histogram
   server <- function(input, output) {
     v <- reactiveValues(k = c(6, 6, 5, 4, 3))
