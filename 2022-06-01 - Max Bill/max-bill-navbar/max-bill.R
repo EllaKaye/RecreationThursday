@@ -1,3 +1,6 @@
+library(ggplot2)
+library(ggforce)
+
 sample_k <- function() {
   c(sample(8,1), sample(7,1), sample(6,1), sample(5,1), sample(4,1))
 }

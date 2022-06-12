@@ -20,14 +20,9 @@ ui <- navbarPage(
   tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
   
   theme = bslib::bs_theme(
-    #    bootswatch = "litera",
-    #    #fg = "black",
-    #    #bg = "white",
     primary = "#3945AA",
     base_font = bslib::font_google("Source Sans Pro"),
     "navbar-bg" = "#fff",
-    #    "code-bg" = "red"
-    
   ),
   
   tabPanel(
