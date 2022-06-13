@@ -8,7 +8,7 @@ ui <- navbarPage(
   # integer-only tick marks on sliders
   tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
   
-  theme = bslib::bs_theme(
+  theme = bs_theme(
     primary = "#3945AA",
     base_font = font_collection(font_face(family = 'LEMONMILKPro-Light',
                                 src = "local('LEMONMILKPro-Light'), url('/LEMONMILKPro-Light.woff2') format('woff2'), url('/LEMONMILKPro-Light.woff') format('woff')"), "Helvetica Neue", "Helvetica", "Arial", "Sans Serif"),
