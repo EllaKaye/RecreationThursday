@@ -1,17 +1,7 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
-library(sass)
+library(bslib)
 source("max-bill.R")
 
-# Define UI for application that draws a histogram
 ui <- navbarPage(
   "",
   
@@ -20,9 +10,10 @@ ui <- navbarPage(
   
   theme = bslib::bs_theme(
     primary = "#3945AA",
-    #base_font = sass::font_google("Source Sans Pro"),
-    base_font = sass::font_face(family = 'LEMONMILKPro-Light',
-                                src = "local('LEMONMILKPro-Light'), url('/LEMONMILKPro-Light.woff2') format('woff2'), url('/LEMONMILKPro-Light.woff') format('woff')"),
+    base_font = font_collection(font_face(family = 'LEMONMILKPro-Light',
+                                src = "local('LEMONMILKPro-Light'), url('/LEMONMILKPro-Light.woff2') format('woff2'), url('/LEMONMILKPro-Light.woff') format('woff')"), "Helvetica Neue", "Helvetica", "Arial", "Sans Serif"),
+    heading_font = font_collection(font_face(family = 'LEMONMILKPro-Regular',
+                                src = "local('LEMONMILKPro-Regular'), url('/LEMONMILKPro-Regular.woff2') format('woff2'), url('/LEMONMILKPro-Regular.woff') format('woff')"), "Helvetica Neue", "Helvetica", "Arial", "Sans Serif"),
     "navbar-bg" = "#fff",
   ),
   
@@ -30,7 +21,6 @@ ui <- navbarPage(
     "RANDOM",
     align = "center",
     plotOutput("plotRandom", height = "500px"),
-    #plotOutput("plotRandom"),
     br(),
     actionButton(
       "rearrange",
@@ -93,18 +83,11 @@ ui <- navbarPage(
            column(8, 
                   includeMarkdown("about.md"),                  
                   offset = 2)
-
-           
-           
-           # Application title
-           #titlePanel("Max Bill"),
-           
-           # Sidebar with a slider input for number of bins),),
   ),
   )
   
-  # Define server logic required to draw a histogram
-  server <- function(input, output) {
+# Define server logic 
+server <- function(input, output) {
     v <- reactiveValues(k = c(6, 6, 5, 4, 3))
     
     observeEvent(input$rearrange, {
@@ -116,7 +99,6 @@ ui <- navbarPage(
     #  })
     
     output$plotRandom <- renderPlot({
-      #
       max_bill_rearrange(k = v$k)
     })
     
@@ -125,6 +107,6 @@ ui <- navbarPage(
     })
   }
   
-  # Run the application
-  shinyApp(ui = ui, server = server)
+# Run the application
+shinyApp(ui = ui, server = server)
   
