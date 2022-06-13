@@ -50,35 +50,35 @@ ui <- navbarPage(
                style = "background: white; border-radius: 0",
                sliderInput(
                  "hept",
-                 "heptagon",
+                 "HEPTAGON",
                  min = 1,
                  max = 8,
                  value = 6
                ),
                sliderInput(
                  "hex",
-                 "hexagon",
+                 "HEXAGON",
                  min = 1,
                  max = 7,
                  value = 6
                ),
                sliderInput(
                  "pent",
-                 "pentagon",
+                 "PENTAGON",
                  min = 1,
                  max = 6,
                  value = 5
                ),
                sliderInput(
                  "sq",
-                 "square",
+                 "SQUARE",
                  min = 1,
                  max = 5,
                  value = 4
                ),
                sliderInput(
                  "tri",
-                 "triangle",
+                 "TRIANGE",
                  min = 1,
                  max = 4,
                  value = 3
@@ -90,7 +90,10 @@ ui <- navbarPage(
            )),
   
   tabPanel("ABOUT",
-           includeMarkdown("about.md")
+           column(8, 
+                  includeMarkdown("about.md"),                  
+                  offset = 2)
+
            
            
            # Application title
