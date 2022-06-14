@@ -1,5 +1,3 @@
-# Inspired by Max Bill for #RecreationThursday
-
 [#RecreationThursday](https://github.com/sharlagelfand/RecreationThursday) is a social project for data visualization folks to recreate and remix existing art pieces through any medium of their choosing - code, painting, music, embroidery, whatever! 
 
 On June 1st, 2022, the piece of art chosen for the project was the cover page of the book 'die grafischen reihen' by Max Bill, as in the image below.

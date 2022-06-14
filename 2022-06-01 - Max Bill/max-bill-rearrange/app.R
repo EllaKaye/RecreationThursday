@@ -1,6 +1,11 @@
 library(shiny)
 library(bslib)
+library(markdown)
 source("max-bill.R")
+
+#dir.create('~/.fonts')
+#file.copy("www/LEMONMILKPro-Light.woff", "~/.fonts")
+#system('fc-cache -f ~/.fonts')
 
 ui <- navbarPage(
   "",
@@ -8,12 +13,20 @@ ui <- navbarPage(
   # integer-only tick marks on sliders
   tags$style(type = "text/css", ".irs-grid-pol.small {height: 0px;}"),
   
+  # theme = bs_theme(
+  #   primary = "#3945AA",
+  #   base_font = font_collection(font_face(family = 'LEMONMILKPro-Light',
+  #                               src = "local('LEMONMILKPro-Light'), url('/www/LEMONMILKPro-Light.woff2') format('woff2'), url('/www/LEMONMILKPro-Light.woff') format('woff')"), "Helvetica Neue", "Helvetica", "Arial", "Sans Serif"),
+  #   heading_font = font_collection(font_face(family = 'LEMONMILKPro-Regular',
+  #                               src = "local('LEMONMILKPro-Regular'), url('/www/LEMONMILKPro-Regular.woff2') format('woff2'), url('/www/LEMONMILKPro-Regular.woff') format('woff')"), "Helvetica Neue", "Helvetica", "Arial", "Sans Serif"),
+  #   "navbar-bg" = "#fff",
+  # ),
+  
   theme = bs_theme(
     primary = "#3945AA",
-    base_font = font_collection(font_face(family = 'LEMONMILKPro-Light',
-                                src = "local('LEMONMILKPro-Light'), url('/LEMONMILKPro-Light.woff2') format('woff2'), url('/LEMONMILKPro-Light.woff') format('woff')"), "Helvetica Neue", "Helvetica", "Arial", "Sans Serif"),
-    heading_font = font_collection(font_face(family = 'LEMONMILKPro-Regular',
-                                src = "local('LEMONMILKPro-Regular'), url('/LEMONMILKPro-Regular.woff2') format('woff2'), url('/LEMONMILKPro-Regular.woff') format('woff')"), "Helvetica Neue", "Helvetica", "Arial", "Sans Serif"),
+    #base_font = font_face(family = 'LEMONMILKPro-Light',
+    #                                      src = "url('~/.fonts/LEMONMILKPro-Light.woff') format('woff'))"),
+    base_font = font_google("Jost"),
     "navbar-bg" = "#fff",
   ),
   
