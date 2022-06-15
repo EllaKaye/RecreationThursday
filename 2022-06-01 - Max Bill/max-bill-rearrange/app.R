@@ -85,7 +85,7 @@ ui <- navbarPage(
                ),
                sliderInput(
                  "tri",
-                 "TRIANGE",
+                 "TRIANGLE",
                  min = 1,
                  max = 4,
                  value = 3
