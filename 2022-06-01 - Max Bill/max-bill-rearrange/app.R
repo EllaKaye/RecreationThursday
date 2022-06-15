@@ -27,12 +27,15 @@ ui <- navbarPage(
     #base_font = font_face(family = 'LEMONMILKPro-Light',
     #                                      src = "url('~/.fonts/LEMONMILKPro-Light.woff') format('woff'))"),
     base_font = font_google("Jost"),
-    "navbar-bg" = "#fff",
+    "navbar-bg" = "#3945AA",
+    #"navbar-dark-color" = "#F45D1B"
+    #"navbar-brand-font-size" = "4rem"
   ),
   
   tabPanel(
     "RANDOM",
     align = "center",
+    br(),
     plotOutput("plotRandom", height = "500px"),
     br(),
     actionButton(
@@ -48,6 +51,7 @@ ui <- navbarPage(
   ),
   
   tabPanel("SLIDERS",
+           br(),
            sidebarLayout(
              sidebarPanel(
                style = "background: white; border-radius: 0",
@@ -93,6 +97,7 @@ ui <- navbarPage(
            )),
   
   tabPanel("ABOUT",
+           br(),
            column(8, 
                   includeMarkdown("about.md"),                  
                   offset = 2)
